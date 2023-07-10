@@ -1,5 +1,5 @@
 import {v4 as uuid} from 'uuid';
-import { IShip } from '../interfaces';
+import { IDescriptor, IShip } from '../interfaces';
 
 export class Player {
   name: string;
@@ -10,7 +10,8 @@ export class Player {
   isPlaying: boolean;
   error: boolean;
   errorText: string;
-  ships?: IShip; 
+  ships?: IShip[]; 
+  field?: IDescriptor[][]; 
 
   constructor (name: string, password: string, ws: WebSocket) {
     this.name = name;
