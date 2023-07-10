@@ -4,10 +4,11 @@ import { IDescriptor, IShip } from '../interfaces';
 export class Player {
   name: string;
   password: string;
-  wins: number;
+  shipsLeft: number;
   id: string;
   ws: WebSocket;
   isPlaying: boolean;
+  wins: number;
   error: boolean;
   errorText: string;
   ships?: IShip[]; 
@@ -16,12 +17,13 @@ export class Player {
   constructor (name: string, password: string, ws: WebSocket) {
     this.name = name;
     this.password = password;
-    this.wins = 0;
+    this.shipsLeft = 0;
     this.id = uuid();
     this.isPlaying = false;
     this.error = false;
     this.errorText = '';
     this.ws = ws;
+    this.wins = 0;
   }
   getInfo() {
     return {

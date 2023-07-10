@@ -3,6 +3,7 @@ import { Player } from "./Player";
 import { IRoom, IShip } from "../interfaces";
 import { AvailableRooms } from "./AvailableRooms";
 import { Game } from "./Game";
+import { frameHandler } from "./utils";
 
 export class Room {
   roomId: string;
@@ -29,7 +30,6 @@ export class Room {
 
   addPlayer(player: Player) {
     this.roomUsers.push(player);
-    console.log('USERS ' + this.roomUsers.length)
     if (this.roomUsers.length === 2) {
       this.createGame();
     }
@@ -37,26 +37,20 @@ export class Room {
   }
 
   createGame() {
-    this.roomUsers[0].ws.send(JSON.stringify({
-      type: "create_game",
-      data: JSON.stringify({
+    this.roomUsers[0].ws.send(
+      frameHandler("create_game", {
         idGame: this.roomId,
         idPlayer: this.roomUsers[1].id,
-      }),
-      id: 0,
-    }))
-    this.roomUsers[1].ws.send(JSON.stringify({
-      type: "create_game",
-      data: JSON.stringify({
-        idGame: this.roomId,
-        idPlayer: this.roomUsers[0].id,
-      }),
-      id: 0,
+      })
+    )
+    this.roomUsers[1].ws.send(frameHandler("create_game", {
+      idGame: this.roomId,
+      idPlayer: this.roomUsers[0].id,
     }))
   }
 
   startGame() {
-    const game = new Game(this.roomId, this.roomUsers[0], this.roomUsers[1])
+    const game = new Game(this.roomId, this.allPlayers, this.roomUsers[0], this.roomUsers[1])
     this.games.push(game);
   }
 
@@ -69,24 +63,3 @@ export class Room {
     }
   }
 }
-
-// export class Room {
-//   roomId: string;
-//   roomUsers: {name: string, index: string, ws: WebSocket}[];
-//   idGame: string;
-
-//   constructor() {
-//     this.roomId = v4();
-//     this.roomUsers = [];
-//     this.idGame = v4();
-//   }
-
-//   addUserToRoom(player: Player) {
-//     this.roomUsers.push({name: player.name, index: player.id, ws: player.ws})
-//     if(this.roomUsers.length === 2){
-      
-//     }
-//   }
-
-
-// }

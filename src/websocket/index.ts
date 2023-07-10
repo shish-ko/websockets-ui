@@ -11,11 +11,8 @@ const availableRooms = new AvailableRooms(connections);
 
 
 export const connectionHandler = (ws: WebSocket) => {
-  // connections.add(ws);
-
   let player: Player;
-
-
+  
   ws.onmessage = (msg: { data: string }) => {
     // console.log(msg.data)
     const frame = JSON.parse(msg.data) as IFrame;

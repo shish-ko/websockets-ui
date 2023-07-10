@@ -30,4 +30,4 @@ export interface IAttack {
   indexPlayer: string,
 }
 
-export type IDescriptor = { left: number; shootDeadCells: number[]; shipCells: Array<[number, number]>; arroundCells: Array<[number, number]>} | 0 
+export type IDescriptor = { left: number; shootDeadCells: number[]; shipCells: Array<[number, number]>; aroundCells: Array<[number, number]>} | 0 
