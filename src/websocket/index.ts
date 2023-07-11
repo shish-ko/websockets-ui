@@ -3,6 +3,7 @@ import { AvailableRooms } from "./AvailableRooms";
 import { Game } from "./Game";
 import { Player } from "./Player";
 import { Room } from "./Room";
+import { frameHandler } from "./utils";
 
 const games: Game[] = []
 const connections = new Set<Player>();
@@ -12,7 +13,8 @@ const availableRooms = new AvailableRooms(connections);
 
 export const connectionHandler = (ws: WebSocket) => {
   let player: Player;
-  
+  let game: Game;
+
   ws.onmessage = (msg: { data: string }) => {
     // console.log(msg.data)
     const frame = JSON.parse(msg.data) as IFrame;
@@ -22,24 +24,14 @@ export const connectionHandler = (ws: WebSocket) => {
       const frameData = JSON.parse(frame.data);
       player = new Player(frameData.name, frameData.password, ws);
       connections.add(player);
-      const res = JSON.stringify({
-        type: "reg",
-        data: JSON.stringify(player.getInfo()),
-        id: 0,
-      });
-      ws.send(res);
+      ws.send(frameHandler('reg', player.getInfo()));
 
       if (rooms.length) {
-        const res2 = JSON.stringify({
-          type: "update_room",
-          data: JSON.stringify(availableRooms),
-          id: 0,
-        });
-        ws.send(res2);
+        ws.send(frameHandler("update_room", availableRooms));
       }
 
     } else if (frameType === 'create_room') {
-      const room = new Room(availableRooms, connections, games)
+      const room = new Room(availableRooms, connections, games);
       rooms.push(room);
       room.createAvailableRoom()
 
@@ -61,6 +53,8 @@ export const connectionHandler = (ws: WebSocket) => {
       const game = games.find((game) => game.idGame === frameData.gameId);
       game?.randomAttack();
     }
+  }
+  ws.onclose = () => {
 
   }
 }

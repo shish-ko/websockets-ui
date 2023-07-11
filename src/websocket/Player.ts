@@ -1,4 +1,5 @@
-import {v4 as uuid} from 'uuid';
+// import {v4 as uuid} from 'uuid';
+import {randomUUID as uuid} from 'node:crypto';
 import { IDescriptor, IShip } from '../interfaces';
 
 export class Player {

@@ -1,4 +1,5 @@
-import { v4 } from "uuid";
+// import { v4 } from "uuid";
+import {randomUUID as uuid} from 'node:crypto';
 import { Player } from "./Player";
 import { IRoom, IShip } from "../interfaces";
 import { AvailableRooms } from "./AvailableRooms";
@@ -14,7 +15,7 @@ export class Room {
   private isReady = 0
 
   constructor(availableRooms: AvailableRooms, allPlayers: Set<Player>, games: Game[]) {
-    this.roomId = v4();
+    this.roomId = uuid();
     this.roomUsers = [];
     this.availableRooms = availableRooms;
     this.allPlayers = allPlayers;
