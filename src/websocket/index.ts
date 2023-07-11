@@ -7,7 +7,6 @@ import { frameHandler } from "./utils";
 
 const games: Game[] = []
 const connections = new Set<Player>();
-const rooms: Room[] = [];
 const availableRooms = new AvailableRooms(connections);
 
 
@@ -25,25 +24,19 @@ export const connectionHandler = (ws: WebSocket) => {
       player = new Player(frameData.name, frameData.password, ws);
       connections.add(player);
       ws.send(frameHandler('reg', player.getInfo()));
-
-      if (rooms.length) {
         ws.send(frameHandler("update_room", availableRooms));
-      }
+        // TODO send winners table
 
     } else if (frameType === 'create_room') {
-      const room = new Room(availableRooms, connections, games);
-      rooms.push(room);
-      room.createAvailableRoom()
-
+      availableRooms.create();
     } else if (frameType === 'add_ships') {
       const frameData = JSON.parse(frame.data);
-      const room = rooms.find((item) => item.roomId === frameData.gameId);
-      room?.addShips(player,frameData.ships);
+      // const room = rooms.find((item) => item.roomId === frameData.gameId);
+      // room?.addShips(player,frameData.ships);
 
     } else if (frameType === 'add_user_to_room') {
       const frameData = JSON.parse(frame.data);
-      const room = rooms.find((room) => room.roomId === frameData.indexRoom);
-      room?.addPlayer(player);    
+      availableRooms.addPlayer(frameData.indexRoom, player);    
     } else if (frameType === 'attack') {
       const frameData = JSON.parse(frame.data) as IAttack;
       const game = games.find((game) => game.idGame === frameData.gameId);
