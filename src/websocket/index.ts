@@ -56,6 +56,10 @@ export const connectionHandler = (ws: WebSocket) => {
       const frameData = JSON.parse(frame.data) as IAttack;
       const game = games.find((game) => game.idGame === frameData.gameId);
       game?.attack(frameData);    
+    } else if (frameType === 'randomAttack') {
+      const frameData = JSON.parse(frame.data) as IAttack;
+      const game = games.find((game) => game.idGame === frameData.gameId);
+      game?.randomAttack();
     }
 
   }

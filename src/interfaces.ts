@@ -30,4 +30,5 @@ export interface IAttack {
   indexPlayer: string,
 }
 
-export type IDescriptor = { left: number; shootDeadCells: number[]; shipCells: Array<[number, number]>; aroundCells: Array<[number, number]>} | 0 
+export type IDescriptor = { isEmpty: false; left: number; shootDeadCells: number[]; shipCells: Array<[number, number]>; aroundCells: Array<[number, number]>} | {isEmpty: true, isShotted: boolean} 
+const w = new Array(10).map((i) => {return {w:3}})
