@@ -1,5 +1,6 @@
 import { IFrame } from "../interfaces";
 import { AvailableRooms } from "./AvailableRooms";
+import { Bot } from "./Bot";
 import { Player } from "./Player";
 import { Room } from "./Room";
 import { dataParser, frameHandler, getWinners } from "./utils";
@@ -10,7 +11,7 @@ const availableRooms = new AvailableRooms(connections);
 export const connectionHandler = (ws: WebSocket) => {
   let player: Player;
   let room: Room;
-
+  console.log(ws.OPEN);
   ws.onmessage = (msg: { data: string }) => {
     // console.log(msg.data)
     const frame = JSON.parse(msg.data) as IFrame;
@@ -39,6 +40,9 @@ export const connectionHandler = (ws: WebSocket) => {
       case 'randomAttack':
         player.game?.randomAttack();
         break;
+        case 'single_play':
+          const q = new Bot();
+          break;
     }
   }
   ws.onclose = () => {

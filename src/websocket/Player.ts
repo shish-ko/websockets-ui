@@ -2,6 +2,7 @@ import {randomUUID as uuid} from 'node:crypto';
 import { IDescriptor, IShip } from '../interfaces';
 import { Game } from './Game';
 
+
 export class Player {
   name: string;
   password: string;
