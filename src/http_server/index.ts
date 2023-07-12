@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as http from 'http';
-import { WebSocket, WebSocketServer } from 'ws';
-import {Player} from '../websocket/Player'
+import { WebSocketServer } from 'ws';
 import { connectionHandler } from '../websocket';
 
 export const httpServer = http.createServer(function (req, res) {
@@ -22,8 +21,4 @@ export const httpServer = http.createServer(function (req, res) {
 
 
 const wsServer = new WebSocketServer({port: 3000, clientTracking: true});
-wsServer.on('connection', connectionHandler)
-// const ws = new WebSocket();
-// ws.onmessage = (msg) => {
-//     console.log(msg)
-// }
+wsServer.on('connection', connectionHandler);
