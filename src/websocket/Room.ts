@@ -12,15 +12,18 @@ export class Room {
     name: string,
     index: string,
   }[];
-  private players: Player[]
+  #players: Player[];
   // private availableRooms: IRoom[];
-  private isReady = 0
+  #allPlayers: Set<Player>;
+  #isReady = 0;
 
-  constructor() {
+  constructor(allPlayers: Set<Player>) {
     this.roomId = uuid();
     this.roomUsers = [];
     // this.availableRooms = availableRooms;
-    this.players =[];
+    this.#players =[];
+    this.#isReady = 0;
+    this.#allPlayers = allPlayers;
   }
 
   // createAvailableRoom() {
@@ -31,7 +34,7 @@ export class Room {
   // }
 
   addPlayer(player: Player) {
-    this.players.push(player);
+    this.#players.push(player);
     this.roomUsers.push({name: player.name, index: player.id});
     if (this.roomUsers.length === 2) {
       this.createGame();
@@ -40,27 +43,27 @@ export class Room {
   }
 
   createGame() {
-    this.players[0].ws.send(
+    this.#players[0].ws.send(
       frameHandler("create_game", {
         idGame: this.roomId,
-        idPlayer: this.players[1].id,
+        idPlayer: this.#players[1].id,
       })
     )
-    this.players[1].ws.send(frameHandler("create_game", {
+    this.#players[1].ws.send(frameHandler("create_game", {
       idGame: this.roomId,
-      idPlayer: this.players[0].id,
+      idPlayer: this.#players[0].id,
     }))
   }
 
   startGame() {
-    // const game = new Game(this.roomId, this.allPlayers, this.roomUsers[0], this.roomUsers[1])
-    // this.games.push(game);
+    const game = new Game(this.roomId, this.#allPlayers, ...this.#players)
+    this.#players.forEach((player) => player.game=game);
   }
 
   addShips(player: Player, ships: IShip[]) {
     player.ships=ships
-    this.isReady += 1;
-    if (this.isReady === 2) {
+    this.#isReady += 1;
+    if (this.#isReady === 2) {
       this.startGame()
     }
   }

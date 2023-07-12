@@ -95,12 +95,23 @@ export class Game {
     player.shipsLeft -= 1;
     if (!player.shipsLeft) {
       player.wins += 1;
-      this.announcePlayers('finish', { winPlayer: this.#currentPlayer, })
+      this.announcePlayers('finish', { winPlayer: this.#currentPlayer.id, })
       this.allPlayers.forEach((player) => player.ws.send(frameHandler('update_winners', this.players.map((player) => { return { name: player.name, wins: player.wins } }))))
+      this.clearGameProp();
     }
   }
   private announcePlayers(type: string, data: {}) {
     this.players.forEach((player) => player.ws.send(frameHandler(type, data)))
+  }
+
+  surrender(loser: Player) {
+    const winner = this.players.find((player) => player !== loser) as Player;
+    this.announcePlayers('finish', { winPlayer: winner.id, })
+    this.allPlayers.forEach((player) => player.ws.send(frameHandler('update_winners', this.players.map((player) => { return { name: player.name, wins: player.wins } }))))
+    this.clearGameProp();
+  }
+  private clearGameProp() {
+    this.players.forEach((player) => player.game = undefined)
   }
 }
 

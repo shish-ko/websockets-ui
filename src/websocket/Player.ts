@@ -1,6 +1,6 @@
-// import {v4 as uuid} from 'uuid';
 import {randomUUID as uuid} from 'node:crypto';
 import { IDescriptor, IShip } from '../interfaces';
+import { Game } from './Game';
 
 export class Player {
   name: string;
@@ -8,10 +8,10 @@ export class Player {
   shipsLeft: number;
   id: string;
   ws: WebSocket;
-  isPlaying: boolean;
   wins: number;
   error: boolean;
   errorText: string;
+  game?: Game;
   ships?: IShip[]; 
   field?: IDescriptor[][]; 
 
@@ -20,7 +20,6 @@ export class Player {
     this.password = password;
     this.shipsLeft = 0;
     this.id = uuid();
-    this.isPlaying = false;
     this.error = false;
     this.errorText = '';
     this.ws = ws;
