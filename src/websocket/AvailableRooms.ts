@@ -1,4 +1,3 @@
-import { IRoom } from "../interfaces";
 import { Player } from "./Player";
 import { Room } from "./Room";
 

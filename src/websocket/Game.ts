@@ -1,18 +1,20 @@
 import { IAttack, IDescriptor, IShip } from "../interfaces";
 import { Player } from "./Player";
-import { frameHandler } from "./utils";
+import { frameHandler, getWinners } from "./utils";
 
 export class Game {
   idGame: string;
   players: Player[];
   allPlayers: Set<Player>;
   #currentPlayer: Player;
+  #defender: Player;
 
   constructor(idGame: string, allPlayers: Set<Player>, ...players: Player[]) {
     this.idGame = idGame;
     this.players = players;
     this.allPlayers = allPlayers;
-    this.#currentPlayer = players[0]
+    this.#currentPlayer = players[0];
+    this.#defender = players[1];
     players.forEach((player) => player.field = createField(player.ships!));
     players.forEach((player) => player.shipsLeft = 10);
     players.forEach((player) => player.ws.send(frameHandler('start_game', { ships: player.ships, currentPlayerIndex: players[0].id })));
@@ -21,7 +23,7 @@ export class Game {
   attack(data: IAttack) {
     const { indexPlayer, x, y } = data;
     if (indexPlayer !== this.#currentPlayer.id) return;
-    const cell = this.#currentPlayer.field![y][x];
+    const cell = this.#defender.field![y][x];
     if (!cell.isEmpty) {
       if (!cell.shootDeadCells.includes(x + y)) {
         cell.shootDeadCells.push(x + y);
@@ -49,12 +51,13 @@ export class Game {
               currentPlayer: this.#currentPlayer.id,
               status: "missed",
             });
-            if (x >= 0 && y >= 0) {
-              const fieldCell = this.#currentPlayer.field![y][x];
+            if (x >= 0 && x<10 && y >= 0 && y<10) {
+              const fieldCell = this.#defender.field![y][x];
               if (fieldCell?.isEmpty) fieldCell.isShotted = true;
             }
 
           });
+          this.#currentPlayer.shipsLeft-=1;
           this.checkWin(this.#currentPlayer);
         }
         this.changePlayer(false);
@@ -74,7 +77,7 @@ export class Game {
   randomAttack() {
     yLoop: for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
-        const cell = this.#currentPlayer.field![y][x]
+        const cell = this.#defender.field![y][x]
         if (cell.isEmpty && !cell.isShotted) {
           this.attack({ gameId: this.idGame, x, y, indexPlayer: this.#currentPlayer.id })
           break yLoop;
@@ -86,33 +89,31 @@ export class Game {
       }
     }
   }
-
+  surrender(loser: Player) {
+    const winner = this.players.find((player) => player !== loser) as Player;
+    winner.shipsLeft=0;
+    this.checkWin(winner);
+  }
+  
   private changePlayer(isNew: boolean) {
-    if (isNew) this.#currentPlayer = this.players.reduce((acc, item) => acc = item.id !== this.#currentPlayer.id ? item : acc)
+    if (isNew) {
+      this.#defender = this.#currentPlayer;
+      this.#currentPlayer = this.players.reduce((acc, item) => acc = item.id !== this.#defender.id ? item : acc)
+    }
     this.announcePlayers('turn', { currentPlayer: this.#currentPlayer.id });
   }
   private checkWin(player: Player) {
-    player.shipsLeft -= 1;
     if (!player.shipsLeft) {
       player.wins += 1;
-      this.announcePlayers('finish', { winPlayer: this.#currentPlayer.id, })
-      this.allPlayers.forEach((player) => player.ws.send(frameHandler('update_winners', this.players.map((player) => { return { name: player.name, wins: player.wins } }))))
-      this.clearGameProp();
+      this.announcePlayers('finish', { winPlayer: player.id, })
+      this.allPlayers.forEach((player) => player.ws.send(frameHandler('update_winners', getWinners(this.allPlayers))))
+      this.players.forEach((player) => player.game = undefined)
     }
   }
   private announcePlayers(type: string, data: {}) {
     this.players.forEach((player) => player.ws.send(frameHandler(type, data)))
   }
 
-  surrender(loser: Player) {
-    const winner = this.players.find((player) => player !== loser) as Player;
-    this.announcePlayers('finish', { winPlayer: winner.id, })
-    this.allPlayers.forEach((player) => player.ws.send(frameHandler('update_winners', this.players.map((player) => { return { name: player.name, wins: player.wins } }))))
-    this.clearGameProp();
-  }
-  private clearGameProp() {
-    this.players.forEach((player) => player.game = undefined)
-  }
 }
 
 

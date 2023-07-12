@@ -1,8 +1,6 @@
-// import { v4 } from "uuid";
 import {randomUUID as uuid} from 'node:crypto';
 import { Player } from "./Player";
-import { IRoom, IShip } from "../interfaces";
-import { AvailableRooms } from "./AvailableRooms";
+import { IShip } from "../interfaces";
 import { Game } from "./Game";
 import { frameHandler } from "./utils";
 
@@ -13,25 +11,16 @@ export class Room {
     index: string,
   }[];
   #players: Player[];
-  // private availableRooms: IRoom[];
   #allPlayers: Set<Player>;
   #isReady = 0;
 
   constructor(allPlayers: Set<Player>) {
     this.roomId = uuid();
     this.roomUsers = [];
-    // this.availableRooms = availableRooms;
     this.#players =[];
     this.#isReady = 0;
     this.#allPlayers = allPlayers;
   }
-
-  // createAvailableRoom() {
-  //   this.availableRooms.add({
-  //     roomId: this.roomId,
-  //     roomUsers: []
-  //   })
-  // }
 
   addPlayer(player: Player) {
     this.#players.push(player);
@@ -39,20 +28,14 @@ export class Room {
     if (this.roomUsers.length === 2) {
       this.createGame();
     }
-    // this.availableRooms.addPlayer(this.roomId, player);
   }
 
   createGame() {
-    this.#players[0].ws.send(
-      frameHandler("create_game", {
+    this.#players.forEach((player) => player.ws.send(frameHandler("create_game", {
         idGame: this.roomId,
-        idPlayer: this.#players[1].id,
-      })
-    )
-    this.#players[1].ws.send(frameHandler("create_game", {
-      idGame: this.roomId,
-      idPlayer: this.#players[0].id,
-    }))
+        idPlayer: player.id,
+      }))
+    )   
   }
 
   startGame() {

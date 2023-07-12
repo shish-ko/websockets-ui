@@ -1,3 +1,5 @@
+import { Player } from "./Player";
+
 export const frameHandler = (type: string, data: {}) => {
   return JSON.stringify({
     type,
@@ -12,4 +14,12 @@ export function dataParser(data: string) {
   } catch {
     return 
   }
+}
+
+export function getWinners(set: Set<Player>) {
+  const res = []
+  for (let player of set.values()){
+    player.wins && res.push({name: player.name, wins: player.wins})
+  }
+  return res;
 }
