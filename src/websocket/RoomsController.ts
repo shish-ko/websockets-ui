@@ -1,7 +1,7 @@
 import { Player } from "./Player";
 import { Room } from "./Room";
 
-export class AvailableRooms extends Array<Room>{
+export class RoomsController extends Array<Room>{
   #connections: Set<Player>;
   constructor(connections: Set<Player>){
     super();

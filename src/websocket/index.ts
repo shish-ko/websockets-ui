@@ -1,11 +1,11 @@
 import { IFrame } from "../interfaces";
-import { AvailableRooms } from "./AvailableRooms";
+import { RoomsController } from "./RoomsController";
 import { Player } from "./Player";
 import { Room } from "./Room";
 import { dataParser, frameHandler, getWinners, PREDEFINED_MAP } from "./utils";
 
 const connections = new Set<Player>();
-const availableRooms = new AvailableRooms(connections);
+const roomsController = new RoomsController(connections);
 
 export const connectionHandler = (ws: WebSocket) => {
   let player: Player;
@@ -20,16 +20,19 @@ export const connectionHandler = (ws: WebSocket) => {
     switch (frameType) {
       case 'reg':
         player = new Player(frameData.name, frameData.password, ws);
-        connections.add(player);
+        player.validate(connections);
         ws.send(frameHandler('reg', player.getInfo()));
-        ws.send(frameHandler("update_room", availableRooms));
-        ws.send(frameHandler('update_winners', getWinners(connections)));
+        if(!player.error){
+          connections.add(player);
+          ws.send(frameHandler("update_room", roomsController));
+          ws.send(frameHandler('update_winners', getWinners(connections)));
+        }
         break;
       case 'create_room':
-        availableRooms.create();
+        roomsController.create();
         break;
       case 'add_user_to_room':
-        room = availableRooms.addPlayer(frameData.indexRoom, player);
+        room = roomsController.addPlayer(frameData.indexRoom, player);
         break;
       case 'add_ships':
         room.addShips(player, frameData.ships);

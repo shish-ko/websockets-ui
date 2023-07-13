@@ -35,5 +35,11 @@ export class Player {
       errorText: this.errorText,
     }
   }
+  validate(allPlayers: Set<Player>) {
+    this.error = Array.from(allPlayers.values()).some((player) => player.name === this.name);
+    if(this.error){
+      this.errorText='Username already exists. Please, choose another one.'
+    }
+  }
 
 }
