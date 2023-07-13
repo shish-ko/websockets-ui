@@ -13,11 +13,12 @@ export class Game {
     this.idGame = idGame;
     this.players = players;
     this.allPlayers = allPlayers;
-    this.#currentPlayer = players[0];
-    this.#defender = players[1];
+    this.#currentPlayer = players[1];
+    this.#defender = players[0];
     players.forEach((player) => player.field = createField(player.ships!));
     players.forEach((player) => player.shipsLeft = 10);
-    players.forEach((player) => player.ws.send(frameHandler('start_game', { ships: player.ships, currentPlayerIndex: players[0].id })));
+    players.forEach((player) => player.ws.send(frameHandler('start_game', { ships: player.ships, currentPlayerIndex: player.id })));
+    players.forEach((player) => player.ws.send(frameHandler('turn', { currentPlayer: this.#currentPlayer.id })));
   }
 
   attack(data: IAttack) {
@@ -74,20 +75,28 @@ export class Game {
 
   }
 
-  randomAttack() {
+  randomAttack(player: Player) {
     yLoop: for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         const cell = this.#defender.field![y][x]
         if (cell.isEmpty && !cell.isShotted) {
-          this.attack({ gameId: this.idGame, x, y, indexPlayer: this.#currentPlayer.id })
+          this.attack({ gameId: this.idGame, x, y, indexPlayer: player.id })
           break yLoop;
         }
         if (!cell.isEmpty && !cell.shootDeadCells.includes(x + y)) {
-          this.attack({ gameId: this.idGame, x, y, indexPlayer: this.#currentPlayer.id })
+          this.attack({ gameId: this.idGame, x, y, indexPlayer: player.id })
           break yLoop;
         }
       }
     }
+  }
+  botAttack(bot: Player){
+    if(bot.id !== this.#currentPlayer.id) return;
+    this.randomAttack(bot);
+    this.randomAttack(bot);
+    this.randomAttack(bot);
+    this.randomAttack(bot);
+    this.randomAttack(bot);
   }
   surrender(loser: Player) {
     const winner = this.players.find((player) => player !== loser) as Player;

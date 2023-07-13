@@ -1,6 +1,7 @@
 import {randomUUID as uuid} from 'node:crypto';
-import { IDescriptor, IShip } from '../interfaces';
+import { IBotFrameHandler, IDescriptor, IShip } from '../interfaces';
 import { Game } from './Game';
+import { Room } from './Room';
 
 
 export class Player {
@@ -15,8 +16,9 @@ export class Player {
   game?: Game;
   ships?: IShip[]; 
   field?: IDescriptor[][]; 
+  room?: Room;
 
-  constructor (name: string, password: string, ws: WebSocket) {
+  constructor (name: string, password: string, ws: WebSocket ) {
     this.name = name;
     this.password = password;
     this.shipsLeft = 0;

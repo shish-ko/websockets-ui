@@ -15,8 +15,10 @@ export class AvailableRooms extends Array<Room>{
     })))
   }
   create(){
-    this.push(new Room(this.#connections));
+    const room=new Room(this.#connections)
+    this.push(room);
     this.announcement()
+    return room;
   }
   addPlayer(id: string, player: Player){
     const room = this.find((room) => room.roomId === id) as Room;

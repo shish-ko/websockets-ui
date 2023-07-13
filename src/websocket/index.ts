@@ -1,23 +1,29 @@
 import { IFrame } from "../interfaces";
 import { AvailableRooms } from "./AvailableRooms";
-import { Bot } from "./Bot";
+// import { Bot } from "./Bot";
 import { Player } from "./Player";
 import { Room } from "./Room";
-import { dataParser, frameHandler, getWinners } from "./utils";
+import { dataParser, frameHandler, getWinners, PREDEFINED_MAP } from "./utils";
 
 const connections = new Set<Player>();
 const availableRooms = new AvailableRooms(connections);
 
+const botFrameHandler = (data: string) => {
+  const that = this as unknown as Player;
+  console.log(that);
+}
+
 export const connectionHandler = (ws: WebSocket) => {
   let player: Player;
+  let bot: Player;
   let room: Room;
-  console.log(ws.OPEN);
+
   ws.onmessage = (msg: { data: string }) => {
     // console.log(msg.data)
     const frame = JSON.parse(msg.data) as IFrame;
-    const {type: frameType, data} = frame;
+    const { type: frameType, data } = frame;
     const frameData = dataParser(data);
-    switch(frameType){
+    switch (frameType) {
       case 'reg':
         player = new Player(frameData.name, frameData.password, ws);
         connections.add(player);
@@ -32,24 +38,30 @@ export const connectionHandler = (ws: WebSocket) => {
         room = availableRooms.addPlayer(frameData.indexRoom, player);
         break;
       case 'add_ships':
-        room.addShips(player,frameData.ships);
+        room.addShips(player, frameData.ships);
         break;
       case 'attack':
         player.game?.attack(frameData);
+        bot?.game?.botAttack(bot);
         break;
       case 'randomAttack':
-        player.game?.randomAttack();
+        player.game?.randomAttack(player);
         break;
-        case 'single_play':
-          const q = new Bot();
-          break;
+      case 'single_play':
+        room = availableRooms.create();
+        bot = new Player('Bot', 'pass', ws);
+        availableRooms.addPlayer(room.roomId, bot);
+        availableRooms.addPlayer(room.roomId, player);
+        room.addShips(bot, PREDEFINED_MAP)
+        break;
     }
   }
   ws.onclose = () => {
-    if(player){
+    if (player) {
       player.game?.surrender(player);
       connections.delete(player);
     }
   }
 
 }
+
