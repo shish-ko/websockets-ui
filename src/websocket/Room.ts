@@ -38,7 +38,7 @@ export class Room {
     )   
   }
 
-  startGame() {
+  private startGame() {
     const game = new Game(this.roomId, this.#allPlayers, ...this.#players)
     this.#players.forEach((player) => player.game=game);
   }

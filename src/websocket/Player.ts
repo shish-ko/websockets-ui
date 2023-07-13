@@ -1,7 +1,6 @@
 import {randomUUID as uuid} from 'node:crypto';
-import { IBotFrameHandler, IDescriptor, IShip } from '../interfaces';
+import { IDescriptor, IShip } from '../interfaces';
 import { Game } from './Game';
-import { Room } from './Room';
 
 
 export class Player {

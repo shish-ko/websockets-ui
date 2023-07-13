@@ -39,16 +39,21 @@ export const connectionHandler = (ws: WebSocket) => {
         break;
       case 'attack':
         player.game?.attack(frameData);
-        bot?.game?.botAttack(bot);
+        setTimeout(() => {
+          bot?.game?.botAttack(bot)
+        }, 700);
         break;
       case 'randomAttack':
         player.game?.randomAttack(player);
+        setTimeout(() => {
+          bot?.game?.botAttack(bot)
+        }, 700);
         break;
       case 'single_play':
-        room = availableRooms.create();
+        room = roomsController.create();
         bot = new Player('Bot', 'pass', ws);
-        availableRooms.addPlayer(room.roomId, bot);
-        availableRooms.addPlayer(room.roomId, player);
+        roomsController.addPlayer(room.roomId, bot);
+        roomsController.addPlayer(room.roomId, player);
         room.addShips(bot, PREDEFINED_MAP)
         break;
     }
