@@ -1,17 +1,11 @@
 import { IFrame } from "../interfaces";
 import { AvailableRooms } from "./AvailableRooms";
-// import { Bot } from "./Bot";
 import { Player } from "./Player";
 import { Room } from "./Room";
 import { dataParser, frameHandler, getWinners, PREDEFINED_MAP } from "./utils";
 
 const connections = new Set<Player>();
 const availableRooms = new AvailableRooms(connections);
-
-const botFrameHandler = (data: string) => {
-  const that = this as unknown as Player;
-  console.log(that);
-}
 
 export const connectionHandler = (ws: WebSocket) => {
   let player: Player;

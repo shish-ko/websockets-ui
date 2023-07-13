@@ -92,11 +92,9 @@ export class Game {
   }
   botAttack(bot: Player){
     if(bot.id !== this.#currentPlayer.id) return;
-    this.randomAttack(bot);
-    this.randomAttack(bot);
-    this.randomAttack(bot);
-    this.randomAttack(bot);
-    this.randomAttack(bot);
+    for(let i =0; i< 5; i++) {
+      this.randomAttack(bot);
+    }
   }
   surrender(loser: Player) {
     const winner = this.players.find((player) => player !== loser) as Player;

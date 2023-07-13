@@ -15,8 +15,7 @@ export class Player {
   errorText: string;
   game?: Game;
   ships?: IShip[]; 
-  field?: IDescriptor[][]; 
-  room?: Room;
+  field?: IDescriptor[][];
 
   constructor (name: string, password: string, ws: WebSocket ) {
     this.name = name;
